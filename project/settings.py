@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'users',
     'authen',
     'reviews',
+    'api',
+    "posts.apps.PostsConfig"
 ]
 
 MIDDLEWARE = [
@@ -80,22 +82,6 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#
-#         'NAME': 'defaultdb',
-#
-#         'USER': 'avnadmin',
-#
-#         'PASSWORD': 'AVNS_lsRdbXVLWuHf_7m8hGS',
-#
-#         'HOST': 'shanta-share-shanta-share.c.aivencloud.com',
-#
-#         'PORT': '24308',
-#     }
-# }
 
 DATABASES = {
     'default': {
@@ -153,23 +139,4 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-# REST_FRAMEWORK = {
-#     # Use Django's standard `django.contrib.auth` permissions,
-#     # or allow read-only access for unauthenticated users.
-#     # 'DEFAULT_PERMISSION_CLASSES': [
-#     #     'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-#     # ]
-#     'DEFAULT_AUTHENTICATION_CLASSES': [
-#         'rest_framework.authentication.BasicAuthentication',
-#         'rest_framework.authentication.SessionAuthentication',
-#         'rest_framework.authentication.TokenAuthentication',
-#     ],
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'rest_framework.permissions.IsAuthenticated',
-#     ],
-# }
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'authentication.BaseUser'
