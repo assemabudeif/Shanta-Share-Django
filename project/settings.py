@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'api',
-    "posts.apps.PostsConfig"
+    "posts.apps.PostsConfig",
+    "core.apps.CoreConfig"
 ]
 
 MIDDLEWARE = [
@@ -84,9 +85,9 @@ DATABASES = {
 
         'NAME': 'shanta_share',
 
-        'USER': 'shanta_share',
+        'USER': 'postgres',
 
-        'PASSWORD': '123456',
+        'PASSWORD': '0000',
 
         'HOST': 'localhost',
 
