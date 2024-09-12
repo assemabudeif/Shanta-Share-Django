@@ -16,6 +16,7 @@ class City(models.Model):
     def __str__(self):
         return self.name
 
+
 class Driver(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=255)
@@ -25,9 +26,8 @@ class Driver(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE)
 
     def __str__(self):
-     return self.name
+        return self.name
 
-  
 
 class Client(models.Model):
     name = models.CharField(max_length=255)
@@ -35,4 +35,4 @@ class Client(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE)
 
     def __str__(self):
-     return self.name
+        return self.name

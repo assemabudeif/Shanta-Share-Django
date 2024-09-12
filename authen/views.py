@@ -93,6 +93,7 @@ def register_client(request):
     user.delete()
     return Response(client_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['POST'])
 def register_driver(request):
     # Serialize and save the Driver instance
