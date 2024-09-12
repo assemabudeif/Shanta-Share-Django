@@ -1,10 +1,8 @@
 from django.db import models
-from core.models import City
+from core.models import City, Driver
 
 
-# Create your models here.
 class Post(models.Model):
-    # id = models.AutoField()
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     to_address_line = models.TextField()
@@ -26,6 +24,11 @@ class Post(models.Model):
     max_weight = models.FloatField()
     max_size = models.FloatField()
     delivery_fee = models.FloatField()
+    created_by = models.ForeignKey(
+        Driver,
+        models.RESTRICT,
+        related_name='driver_posts',
+    )
 
     def __str__(self):
         return self.description
