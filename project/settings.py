@@ -39,9 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'core',
+    'users',
+    'authen',
+    'reviews',
     'api',
     "posts.apps.PostsConfig",
-    "core.apps.CoreConfig"
 ]
 
 MIDDLEWARE = [
@@ -85,9 +88,9 @@ DATABASES = {
 
         'NAME': 'shanta_share',
 
-        'USER': 'postgres',
+        'USER': 'shanta_share',
 
-        'PASSWORD': '0000',
+        'PASSWORD': '123456',
 
         'HOST': 'localhost',
 

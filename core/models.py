@@ -1,24 +1,38 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
-# Create your models here.
 class Government(models.Model):
-    # id = models.AutoField()
-    name = models.CharField(max_length=100)
-    # cities = models.ManyToOneRel('project.models.City', 'cities', field_name='government')
+    name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
 
 class City(models.Model):
-    # id = models.AutoField()
-    name = models.CharField(max_length=100)
-    government = models.ForeignKey(
-        Government,
-        models.CASCADE,
-        related_name='cities'
-    )
+    name = models.CharField(max_length=255)
+    government = models.ForeignKey(Government, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
+
+class Driver(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    name = models.CharField(max_length=255)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2)
+    birth_date = models.DateField()
+    address_line = models.CharField(max_length=255)
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
+
+    def __str__(self):
+     return self.name
+
+  
+
+class Client(models.Model):
+    name = models.CharField(max_length=255)
+    address_line = models.CharField(max_length=255)
+    city = models.ForeignKey(City, on_delete=models.CASCADE)
+
+    def __str__(self):
+     return self.name
