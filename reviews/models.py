@@ -1,6 +1,6 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-
+from django.contrib.auth.models import User
 from core.models import Client, Driver
 
 # from core.models import Client, Driver
@@ -11,6 +11,7 @@ class Review(models.Model):
     id=models.AutoField(primary_key=True)
     driver = models.ForeignKey(Driver, on_delete=models.CASCADE, null=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE, null=True)
+    # user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     rating = models.IntegerField(validators=[ MinValueValidator(1), MaxValueValidator(5)])
     review_text = models.TextField()
     review_date = models.DateTimeField(auto_now_add=True)
