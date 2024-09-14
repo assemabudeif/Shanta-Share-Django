@@ -88,15 +88,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 
-        'NAME': 'shanta_share',
+        'NAME': 'railway',
 
         'USER': 'postgres',
 
-        'PASSWORD': '0000',
+        'PASSWORD': 'BxeGfGqOQAgEvxXwnQwWDMUaphOSRLDj',
 
-        'HOST': 'localhost',
+        'HOST': 'junction.proxy.rlwy.net',
 
-        'PORT': '5432',
+        'PORT': '22278',
     }
 }
 
