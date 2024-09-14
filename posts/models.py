@@ -24,11 +24,7 @@ class Post(models.Model):
     max_weight = models.FloatField()
     max_size = models.FloatField()
     delivery_fee = models.FloatField()
-    created_by = models.ForeignKey(
-        Driver,
-        models.RESTRICT,
-        related_name='driver_posts',
-    )
+
 
     def __str__(self):
         return self.description
