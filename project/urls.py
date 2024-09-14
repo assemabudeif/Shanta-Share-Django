@@ -24,4 +24,5 @@ urlpatterns = [
     path('', include('authen.urls')),
     path('reviews/', include('reviews.urls')),
     path('users/', include('users.urls')),
+    path('posts/', include('posts.urls')),
 ]
