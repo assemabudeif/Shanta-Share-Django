@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from core.models import Driver, Client
+from authentication.models import Driver, Client
 
 
 class DriverSerializer(serializers.ModelSerializer):

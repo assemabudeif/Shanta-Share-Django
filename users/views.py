@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from core.models import Driver, Client
+from authentication.models import Driver, Client
 from users.serializers import DriverSerializer, ClientSerializer
 
 
