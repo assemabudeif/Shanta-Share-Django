@@ -5,11 +5,6 @@ from core.models import NationalityID, Car, DriverLicense, CarLicense, City, Pho
 
 # Create your core_models here.
 class BaseUser(AbstractUser):
-    # email = models.EmailField(
-    #     verbose_name='email address',
-    #     max_length=255,
-    #     unique=True,
-    # )
     user_type = models.CharField(
         max_length=10,
         choices=UserType.choices,

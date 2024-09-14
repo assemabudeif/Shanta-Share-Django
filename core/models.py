@@ -24,6 +24,9 @@ class PhoneNumber(models.Model):
     # user_id = models.ForeignKey(User, on_delete=models.CASCADE, to=User, field_name='phone_number')
     phone_number = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.phone_number
+
 
 class NationalityID(models.Model):
     # driver_id = models.ForeignKey(Driver, on_delete=models.CASCADE)
@@ -32,6 +35,9 @@ class NationalityID(models.Model):
     expiration_date = models.DateField()
     front_image_url = models.TextField()
     back_image_url = models.TextField()
+
+    def __str__(self):
+        return self.nationality_id_number
 
 
 class DriverLicense(models.Model):
@@ -42,12 +48,18 @@ class DriverLicense(models.Model):
     front_image_url = models.TextField()
     back_image_url = models.TextField()
 
+    def __str__(self):
+        return self.license_number
+
 
 class Car(models.Model):
     # driver_id = models.ForeignKey(Driver, on_delete=models.CASCADE)
     make = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
     year = models.IntegerField()
+
+    def __str__(self):
+        return self.make
 
 
 class CarLicense(models.Model):
@@ -58,10 +70,16 @@ class CarLicense(models.Model):
     front_image_url = models.TextField()
     back_image_url = models.TextField()
 
+    def __str__(self):
+        return self.license_number
+
 
 class CarImage(models.Model):
     car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
     image_url = models.TextField()
+
+    def __str__(self):
+        return self.image_url
 
 # class Driver(core_models.Model):
 #     user = core_models.OneToOneField(User, on_delete=core_models.CASCADE, null=True, blank=True)
