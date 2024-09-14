@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import AccessToken
 
 # from django.contrib.auth import login
 
@@ -27,10 +28,17 @@ def client_login(request):
         user.last_login = datetime.now()
         user.save()
         serializer = ClientSerializer(instance=user)
+
+
+        access_token = AccessToken.for_user(user)
+
+        print(access_token)
+
         return Response({
             'status': 'success',
             'message': 'Logged in successfully.',
             'client': serializer.data,
+            'access_token': str(access_token)
         },
             status=status.HTTP_200_OK)
     except Client.DoesNotExist:
@@ -57,10 +65,12 @@ def driver_login(request):
         user.last_login = datetime.now()
         user.save()
         serializer = ClientSerializer(instance=user)
+        access_token = AccessToken.for_user(user)
         return Response({
             'status': 'success',
             'message': 'Logged in successfully.',
             'driver': serializer.data,
+            'access_token': str(access_token)
         },
             status=status.HTTP_200_OK)
     except Driver.DoesNotExist:
