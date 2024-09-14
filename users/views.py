@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from authentication.models import Driver, Client
-from users.serializers import DriverSerializer, ClientSerializer
+from authentication.serializers import DriverSerializer, ClientSerializer
 
 
 # Create your views here.
