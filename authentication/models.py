@@ -5,11 +5,6 @@ from core.models import NationalityID, Car, DriverLicense, CarLicense, City, Pho
 
 # Create your core_models here.
 class BaseUser(AbstractUser):
-    # email = models.EmailField(
-    #     verbose_name='email address',
-    #     max_length=255,
-    #     unique=True,
-    # )
     user_type = models.CharField(
         max_length=10,
         choices=UserType.choices,
@@ -31,8 +26,8 @@ class Client(BaseUser):
         related_name='client',
     )
     name = models.CharField(max_length=255)
-    city_id = models.ManyToManyField(City)
-    phone_number = models.ManyToManyField(PhoneNumber)
+    city_ids = models.ManyToManyField(City)
+    phone_numbers = models.ManyToManyField(PhoneNumber)
     address_line = models.CharField(max_length=255)
     birth_date = models.DateField(null=True)
 
@@ -57,14 +52,14 @@ class Driver(BaseUser):
         related_name='driver',
     )
     name = models.CharField(max_length=255)
-    city_id = models.ManyToManyField(City)
-    phone_number = models.ManyToManyField(PhoneNumber)
+    city_ids = models.ManyToManyField(City)
+    phone_numbers = models.ManyToManyField(PhoneNumber)
     address_line = models.CharField(max_length=255)
     birth_date = models.DateField(null=True)
     average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
     nationality_id = models.OneToOneField(NationalityID, null=True, on_delete=models.CASCADE)
-    car_id = models.ManyToManyField(Car, null=True)
-    driver_license_id = models.ManyToManyField(DriverLicense, null=True)
+    car_ids = models.ManyToManyField(Car, null=True)
+    driver_license_ids = models.ManyToManyField(DriverLicense, null=True)
 
     @property
     def age(self):
