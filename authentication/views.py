@@ -91,5 +91,14 @@ class DriverRegisterView(APIView):
         serializer = DriverRegisterSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({
+                'status': 'success',
+                'message': 'Registered successfully.',
+                'driver': serializer.data,
+                'city_ids': serializer.validated_data['city_ids'],
+                'phone_numbers': serializer.validated_data['phone_numbers'],
+                'driver_license_ids': serializer.validated_data['driver_license_ids'],
+                'car_ids': serializer.validated_data['car_ids'],
+                'nationality_id': serializer.validated_data['nationality_id'],
+            }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
