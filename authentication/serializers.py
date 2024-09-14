@@ -6,6 +6,7 @@ from core.serializers import CitySerializer, PhoneNumberSerializer, CarSerialize
     NationalityIDSerializer
 
 
+
 class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = BaseUser

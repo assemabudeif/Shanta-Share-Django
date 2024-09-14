@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.permissions import AllowAny
@@ -22,6 +24,8 @@ def client_login(request):
                 "message": "Invalid password.",
             },
                 status=status.HTTP_400_BAD_REQUEST)
+        user.last_login = datetime.now()
+        user.save()
         serializer = ClientSerializer(instance=user)
         return Response({
             'status': 'success',
@@ -50,6 +54,8 @@ def driver_login(request):
                 "message": "Invalid password.",
             },
                 status=status.HTTP_400_BAD_REQUEST)
+        user.last_login = datetime.now()
+        user.save()
         serializer = ClientSerializer(instance=user)
         return Response({
             'status': 'success',
