@@ -84,15 +84,15 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 
-        'NAME': 'shanta_share',
+        'NAME': 'defaultdb',
 
-        'USER': 'shanta_share',
+        'USER': 'avnadmin',
 
-        'PASSWORD': '123456',
+        'PASSWORD': 'AVNS_lsRdbXVLWuHf_7m8hGS',
 
-        'HOST': 'localhost',
+        'HOST': 'shanta-share-shanta-share.c.aivencloud.com',
 
-        'PORT': '5432',
+        'PORT': '24308',
     }
 }
 
