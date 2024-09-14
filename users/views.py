@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from authentication.models import Driver, Client
 from users.serializers import DriverSerializer, ClientSerializer
@@ -12,6 +14,8 @@ from users.serializers import DriverSerializer, ClientSerializer
 
 # DRIVER CRUD
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes((IsAuthenticated, ))
 def listDrivers(request):
     try:
         drivers = Driver.objects.all()
@@ -27,7 +31,11 @@ def listDrivers(request):
             'status': 'error'
         }, status=status.HTTP_400_BAD_REQUEST)
 
+
 class DriverProfile(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, id):
         try:
             driver = Driver.objects.get(id=id)
@@ -81,8 +89,11 @@ class DriverProfile(APIView):
                 'status': 'error'
             }, status=status.HTTP_400_BAD_REQUEST)
 
+
 # CLIENT CRUD
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes((IsAuthenticated, ))
 def listClients(request):
     try:
         clients = Client.objects.all()
@@ -98,7 +109,11 @@ def listClients(request):
             'status': 'error'
         }, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ClientProfile(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def get(self, request, id):
         try:
             client = Client.objects.get(id=id)
