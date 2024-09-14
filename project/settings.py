@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'core',
+    'authentication',
     'users',
     'authen',
     'reviews',
@@ -80,19 +81,35 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#
+#         'NAME': 'defaultdb',
+#
+#         'USER': 'avnadmin',
+#
+#         'PASSWORD': 'AVNS_lsRdbXVLWuHf_7m8hGS',
+#
+#         'HOST': 'shanta-share-shanta-share.c.aivencloud.com',
+#
+#         'PORT': '24308',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
 
-        'NAME': 'defaultdb',
+        'NAME': 'shanta_share',
 
-        'USER': 'avnadmin',
+        'USER': 'shanta_share',
 
-        'PASSWORD': 'AVNS_lsRdbXVLWuHf_7m8hGS',
+        'PASSWORD': '123456',
 
-        'HOST': 'shanta-share-shanta-share.c.aivencloud.com',
+        'HOST': 'localhost',
 
-        'PORT': '24308',
+        'PORT': '5432',
     }
 }
 
@@ -136,7 +153,7 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # REST_FRAMEWORK = {
@@ -154,3 +171,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #         'rest_framework.permissions.IsAuthenticated',
 #     ],
 # }
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = 'authentication.BaseUser'
