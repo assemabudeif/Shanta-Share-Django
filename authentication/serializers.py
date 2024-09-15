@@ -36,7 +36,7 @@ class DriverSerializer(serializers.ModelSerializer):
         ]
 
     # city_ids = CitySerializer(many=True, read_only=True)  # Accepting nested City objects
-    # phone_numbers = PhoneNumberSerializer(read_only=True, many=True)
+    phone_numbers = PhoneNumberSerializer(read_only=True, many=True)
     # car_ids = CarSerializer(read_only=True, many=True)
     # driver_license_ids = DriverLicenseSerializer(read_only=True, many=True)
     # nationality_id = NationalityIDSerializer(read_only=True)
@@ -61,7 +61,7 @@ class ClientSerializer(serializers.ModelSerializer):
         ]
 
     # city_ids = CitySerializer(many=True, read_only=True)  # Accepting nested City objects
-    # phone_numbers = PhoneNumberSerializer(read_only=True, many=True)
+    phone_numbers = PhoneNumberSerializer(read_only=True, many=True)
 
 
 class ClientRegisterSerializer(serializers.ModelSerializer):
