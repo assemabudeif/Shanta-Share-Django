@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'users',
     'authen',
     'reviews',
-    'api',
     "posts.apps.PostsConfig",
 ]
 
