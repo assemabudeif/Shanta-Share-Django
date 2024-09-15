@@ -43,8 +43,8 @@ INSTALLED_APPS = [
     'users',
     'authen',
     'reviews',
-    'corsheaders'
-    'api',
+    'corsheaders',
+    # 'api',
     "posts.apps.PostsConfig",
 ]
 
