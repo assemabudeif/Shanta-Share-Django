@@ -7,7 +7,7 @@ from .permissions import IsDriverOrClient
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsDriverOrClient]
     # permission_classes = [IsDriverOrClient]  
 
     def perform_create(self, serializer):
@@ -16,10 +16,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
         driver = getattr(user, 'driver', None)
 
         # # Ensure that we save either client or driver, not both
-        # if client:
-        #     serializer.save(client=client)
-        # elif driver:
-        #     serializer.save(driver=driver)
-        # else:
-        #     # Handle case where user is neither a client nor a driver
-        serializer.save()
+        if client:
+            serializer.save(client=client)
+        elif driver:
+            serializer.save(driver=driver)
+        else:
+            # Handle case where user is neither a client nor a driver
+           serializer.save()

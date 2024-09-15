@@ -43,10 +43,13 @@ INSTALLED_APPS = [
     'users',
     'authen',
     'reviews',
+    'corsheaders',
+    # 'api',
     "posts.apps.PostsConfig",
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,17 +57,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
 ]
-
-# Allow all origins (not recommended for production)
 CORS_ALLOW_ALL_ORIGINS = True
-
-# Alternatively, you can allow specific origins
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-]
 
 ROOT_URLCONF = 'project.urls'
 
@@ -121,6 +115,9 @@ DATABASES = {
         'PORT': '22278',
     }
 }
+
+CORS_ORIGIN_WHITELIST=['http://localhost:3000']
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
