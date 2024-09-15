@@ -11,6 +11,8 @@ from .models import Post
 class GETPostSerializer(serializers.ModelSerializer):
     to_city = CitySerializer(many=False, read_only=False)
     from_city = CitySerializer(many=False, read_only=False)
+    created_by = DriverSerializer(many=False, read_only=True)
+
 
     class Meta:
         model = Post

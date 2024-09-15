@@ -17,12 +17,14 @@ class DriverSerializer(serializers.ModelSerializer):
     class Meta:
         model = Driver
         fields = '__all__'
+        # fields = ['id', 'name', 'city_ids', 'phone_numbers', 'address_line', 'birth_date', 'average_rating', 'nationality_id', 'car_ids', 'driver_license_ids', 'user']
 
     city_ids = CitySerializer(many=True, read_only=True)  # Accepting nested City objects
     phone_numbers = PhoneNumberSerializer(read_only=True, many=True)
     car_ids = CarSerializer(read_only=True, many=True)
     driver_license_ids = DriverLicenseSerializer(read_only=True, many=True)
     nationality_id = NationalityIDSerializer(read_only=True)
+    user = BaseUserSerializer(read_only=True)
 
 
 class ClientSerializer(serializers.ModelSerializer):
