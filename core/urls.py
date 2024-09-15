@@ -17,5 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from core.views import GovernmentListCreateView, GovernmentDetailView, CityListCreateView, CityDetailView
+
 urlpatterns = [
+    path('governments/', GovernmentListCreateView.as_view(), name='government-list-create'),
+    path('governments/<int:pk>/', GovernmentDetailView.as_view(), name='government-detail'),
+    path('cities/', CityListCreateView.as_view(), name='city-list-create'),
+    path('cities/<int:pk>/', CityDetailView.as_view(), name='city-detail'),
 ]
