@@ -6,6 +6,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from core.pagination import StanderPagination
 from .models import Post
 from .serializers import GETPostSerializer, serializers, POSTPostSerializer
 
@@ -46,11 +47,18 @@ class PostFilter(django_filters.FilterSet):
     # pickup_time = django_filters.DateTimeFilter()
     # arrival_time = django_filters.DateTimeFilter()
 
-    from_city = django_filters.CharFilter(field_name='from_city__name', lookup_expr='icontains')
-    to_city = django_filters.CharFilter(field_name='to_city__name', lookup_expr='icontains')
+    from_city = django_filters.NumberFilter(field_name='from_city__id', lookup_expr='exact')
+    to_city = django_filters.NumberFilter(field_name='to_city__id', lookup_expr='exact')
 
-    from_government = django_filters.CharFilter(field_name='from_city__government__name', lookup_expr='icontains')
-    to_government = django_filters.CharFilter(field_name='to_city__government__name', lookup_expr='icontains')
+    from_government = django_filters.NumberFilter(field_name='from_city__government__id', lookup_expr='exact')
+    to_government = django_filters.NumberFilter(field_name='to_city__government__id', lookup_expr='exact')
+
+    # from_city = django_filters.CharFilter(field_name='from_city__name', lookup_expr='icontains')
+    # to_city = django_filters.CharFilter(field_name='to_city__name', lookup_expr='icontains')
+    #
+    # from_government = django_filters.CharFilter(field_name='from_city__government__name', lookup_expr='icontains')
+    # to_government = django_filters.CharFilter(field_name='to_city__government__name', lookup_expr='icontains')
+    # to_government = django_filters.NumberFilter(field_name='to_city__government__id', lookup_expr='exact')
 
     max_weight = django_filters.NumberFilter(field_name='max_weight', lookup_expr='gte')
     max_size = django_filters.NumberFilter(field_name='max_size', lookup_expr='gte')
@@ -65,6 +73,7 @@ class PostListView(generics.ListAPIView):
     serializer_class = GETPostSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = PostFilter
+    pagination_class = StanderPagination
 
     # filterset_fields = ['from_city', 'to_city', 'pickup_time', 'arrival_time']
     search_fields = ['description', 'from_address_line', 'to_address_line', 'created_by__username']

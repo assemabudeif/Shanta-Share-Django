@@ -28,7 +28,7 @@ class Post(models.Model):
     max_size = models.FloatField()
     delivery_fee = models.FloatField(null=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        Driver,
         models.CASCADE,
         related_name='driver_posts',
         null=True
