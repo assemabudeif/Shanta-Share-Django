@@ -1,5 +1,26 @@
 from django.db import models
 
+
+class Singleton(models.Model):
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        """Override save to ensure only one instance with pk=1."""
+        self.pk = 1
+        super(Singleton, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        """Prevent deletion of the singleton instance."""
+        pass
+
+    @classmethod
+    def load(cls):
+        """Load the singleton instance, or create it if not found."""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class UserType(models.TextChoices):
     DRIVER = 'DRIVER'
     CLIENT = 'CLIENT'
@@ -15,6 +36,8 @@ class Government(models.Model):
 class City(models.Model):
     name = models.CharField(max_length=255)
     government = models.ForeignKey(Government, on_delete=models.CASCADE)
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null=True)
 
     def __str__(self):
         return self.name
@@ -101,3 +124,13 @@ class CarImage(models.Model):
 #
 #     def __str__(self):
 #      return self.name
+
+
+class DeliveryFEESettings(Singleton):
+    distance_factor = models.FloatField()
+    type_factor = models.FloatField()
+    weight_factor = models.FloatField()
+    size_factor = models.FloatField()
+
+    def __str__(self):
+        return f"Settings ({self.pk})"
