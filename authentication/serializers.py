@@ -6,7 +6,6 @@ from core.serializers import CitySerializer, PhoneNumberSerializer, CarSerialize
     NationalityIDSerializer
 
 
-
 class BaseUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = BaseUser
@@ -38,7 +37,8 @@ class ClientSerializer(serializers.ModelSerializer):
 
 class ClientRegisterSerializer(serializers.ModelSerializer):
     # city_ids = serializers.ListField(child=CitySerializer(), write_only=True)
-    city_ids = CitySerializer(many=True, write_only=True)  # Accepting nested City objects
+    # city_ids = CitySerializer(many=True, write_only=True)  # Accepting nested City objects
+    city_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
     phone_numbers = serializers.ListField(child=PhoneNumberSerializer(), write_only=True)
 
@@ -64,15 +64,17 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
         )
 
         # Add or create cities
-        for city_data in city_ids:
-            government, created = Government.objects.get_or_create(
-                name=city_data['government']['name'],
-            )
-            city, created = City.objects.get_or_create(
-                name=city_data['name'],
-                government=government,
-            )
-            user.city_ids.add(city)
+        cities = City.objects.filter(id__in=city_ids)
+        user.city_ids.set(cities)
+        # for city_data in city_ids:
+        #     government, created = Government.objects.get_or_create(
+        #         name=city_data['government']['name'],
+        #     )
+        #     city, created = City.objects.get_or_create(
+        #         name=city_data['name'],
+        #         government=government,
+        #     )
+        #     user.city_ids.add(city)
 
         # Add phone numbers (create new ones if they don't exist)
         for number in phone_numbers:
@@ -84,7 +86,7 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
 
 
 class DriverRegisterSerializer(serializers.ModelSerializer):
-    city_ids = CitySerializer(many=True, write_only=True)  # Accepting nested City objects
+    city_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
     phone_numbers = serializers.ListField(child=PhoneNumberSerializer(), write_only=True)
     car_ids = serializers.ListField(child=CarSerializer(), write_only=True)
     driver_license_ids = serializers.ListField(child=DriverLicenseSerializer(), write_only=True)
@@ -92,8 +94,21 @@ class DriverRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Driver
-        fields = ['email', 'name', 'first_name', 'last_name', 'password', 'name', 'city_ids', 'phone_numbers', 'address_line',
-                  'birth_date', 'nationality_id', 'car_ids', 'driver_license_ids']
+        fields = [
+            'email',
+            'name',
+            'first_name',
+            'last_name',
+            'password',
+            'name',
+            'city_ids',
+            'phone_numbers',
+            'address_line',
+            'birth_date',
+            'nationality_id',
+            'car_ids',
+            'driver_license_ids',
+        ]
 
     def create(self, validated_data):
         # Extract related fields
@@ -113,16 +128,9 @@ class DriverRegisterSerializer(serializers.ModelSerializer):
             birth_date=validated_data['birth_date'],
         )
 
-        # Add or create cities
-        for city_data in city_ids:
-            government, created = Government.objects.get_or_create(
-                name=city_data['government']['name'],
-            )
-            city, created = City.objects.get_or_create(
-                name=city_data['name'],
-                government=government,
-            )
-            user.city_ids.add(city)
+        # Add cities
+        cities = City.objects.filter(id__in=city_ids)
+        user.city_ids.set(cities)
 
         # Add phone numbers (create new ones if they don't exist)
         for number in phone_numbers:
@@ -163,5 +171,3 @@ class DriverRegisterSerializer(serializers.ModelSerializer):
 
         user.save()
         return user
-
-
