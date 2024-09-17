@@ -22,8 +22,25 @@ class PostCreateView(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         request_data = dict(request.data)
         serializer = POSTPostSerializer(data=request_data)
+
+        print(request.data['to_city'])
+        city1 = City.objects.filter(id=request.data['to_city']).first()
+        city2 = City.objects.filter(id=request.data['from_city']).first()
+
+        max_weight = float(request.data['max_weight'])
+        max_size = float(request.data['max_size'])
+
+        delivery_fees = calc_delivery_fees(
+            city1,
+            city2,
+            max_weight,
+            max_size,
+        )
+        print(delivery_fees)
+
         if request.user.is_authenticated:
             request_data["created_by"] = request.user.id
+            request_data["delivery_fee"] = delivery_fees
         else:
             return Response(serializer.data, status)
 
@@ -88,23 +105,33 @@ class PostDetailsView(generics.RetrieveAPIView):
     serializer_class = GETPostSerializer
 
 
-def calculate_delivery_fees(request):
-    delivery_fees_settings = DeliveryFEESettings.load()
-
+def calculate_delivery_fees_view(request):
     city1 = City.objects.filter(id=request.GET.get('city1_id')).first()
     city2 = City.objects.filter(id=request.GET.get('city2_id')).first()
 
     max_weight = float(request.GET.get('max_weight'))
     max_size = float(request.GET.get('max_size'))
-    distance = get_here_route_distance(city1, city2)
 
-    delivery_fees = (
-        (distance * delivery_fees_settings.distance_factor) +
-        (distance * delivery_fees_settings.distance_factor) * (max_weight * delivery_fees_settings.weight_factor) +
-        (distance * delivery_fees_settings.distance_factor) * (max_size * delivery_fees_settings.size_factor)
+    delivery_fees = calc_delivery_fees(
+        city1,
+        city2,
+        max_weight,
+        max_size,
     )
 
     return JsonResponse({'delivery_fees': delivery_fees})
+
+
+def calc_delivery_fees(city1, city2, max_weight, max_size):
+    distance = get_here_route_distance(city1, city2)
+    delivery_fees_settings = DeliveryFEESettings.load()
+    delivery_fees = (
+            (distance * delivery_fees_settings.distance_factor) +
+            (distance * delivery_fees_settings.distance_factor) * (max_weight * delivery_fees_settings.weight_factor) +
+            (distance * delivery_fees_settings.distance_factor) * (max_size * delivery_fees_settings.size_factor)
+    )
+
+    return delivery_fees
 
 
 def get_here_route_distance(city1, city2):
