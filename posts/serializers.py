@@ -6,13 +6,10 @@ from core.serializers import CitySerializer
 from .models import Post
 
 
-
-
 class GETPostSerializer(serializers.ModelSerializer):
     to_city = CitySerializer(many=False, read_only=False)
     from_city = CitySerializer(many=False, read_only=False)
     created_by = DriverSerializer(many=False, read_only=True)
-
 
     class Meta:
         model = Post
@@ -37,6 +34,7 @@ class POSTPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
+            'id',
             'description',
             'from_city',
             'from_address_line',

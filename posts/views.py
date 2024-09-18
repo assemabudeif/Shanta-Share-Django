@@ -1,4 +1,7 @@
+import json
+
 import django_filters
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http import JsonResponse
 from django.shortcuts import render
 from django_filters.rest_framework import DjangoFilterBackend
@@ -46,7 +49,11 @@ class PostCreateView(generics.CreateAPIView):
 
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({
+                "message": "Post Added Successfully",
+                "status": "success",
+                "data": GETPostSerializer(data=serializer.data).initial_data
+            }, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         pass
@@ -98,6 +105,27 @@ class PostListView(generics.ListAPIView):
     # filterset_fields = ['from_city', 'to_city', 'pickup_time', 'arrival_time']
     search_fields = ['description', 'from_address_line', 'to_address_line', 'created_by__username']
     ordering_fields = ['pickup_time', 'arrival_time']
+
+
+class DriverPostListView(generics.ListAPIView):
+    serializer_class = GETPostSerializer
+    pagination_class = StanderPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = PostFilter
+    search_fields = ['description', 'from_address_line', 'to_address_line', 'created_by__username']
+    ordering_fields = ['pickup_time', 'arrival_time']
+
+    def get_queryset(self):
+        queryset = Post.objects.all()
+        if self.request.user.is_authenticated:
+            driver_id = self.request.user.id
+            if driver_id:
+                queryset = queryset.filter(created_by__id=driver_id)
+                return queryset
+
+
+    # filterset_fields = ['from_city', 'to_city', 'pickup_time', 'arrival_time']
+
 
 
 class PostDetailsView(generics.RetrieveAPIView):
