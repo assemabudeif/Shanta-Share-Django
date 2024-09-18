@@ -30,6 +30,8 @@ class Client(BaseUser):
     phone_numbers = models.ManyToManyField(PhoneNumber)
     address_line = models.CharField(max_length=255)
     birth_date = models.DateField(null=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures', null=False, blank=True)
+
 
     @property
     def age(self):
@@ -60,6 +62,8 @@ class Driver(BaseUser):
     nationality_id = models.OneToOneField(NationalityID, null=True, on_delete=models.CASCADE)
     car_ids = models.ManyToManyField(Car, null=True)
     driver_license_ids = models.ManyToManyField(DriverLicense, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures', null=False, blank=True)
+
 
     @property
     def age(self):

@@ -26,6 +26,7 @@ class UserType(models.TextChoices):
     CLIENT = 'CLIENT'
     ADMIN = 'ADMIN'
 
+
 class Government(models.Model):
     name = models.CharField(max_length=255)
 
@@ -56,8 +57,8 @@ class NationalityID(models.Model):
     nationality_id_number = models.CharField(max_length=100)
     issued_date = models.DateField()
     expiration_date = models.DateField()
-    front_image_url = models.TextField()
-    back_image_url = models.TextField()
+    front_image_url = models.ImageField(upload_to='Nationality_id_images')
+    back_image_url = models.ImageField(upload_to='Nationality_id_images')
 
     def __str__(self):
         return self.nationality_id_number
@@ -68,8 +69,8 @@ class DriverLicense(models.Model):
     license_number = models.CharField(max_length=100)
     issued_date = models.DateField()
     expiration_date = models.DateField()
-    front_image_url = models.TextField()
-    back_image_url = models.TextField()
+    front_image_url = models.ImageField(upload_to='Car_license_images')
+    back_image_url = models.ImageField(upload_to='Car_license_images')
 
     def __str__(self):
         return self.license_number
@@ -90,8 +91,8 @@ class CarLicense(models.Model):
     license_number = models.CharField(max_length=100)
     issued_date = models.DateField()
     expiration_date = models.DateField()
-    front_image_url = models.TextField()
-    back_image_url = models.TextField()
+    front_image_url = models.ImageField(upload_to='Driver_license_images')
+    back_image_url = models.ImageField(upload_to='Driver_license_images')
 
     def __str__(self):
         return self.license_number
@@ -99,10 +100,11 @@ class CarLicense(models.Model):
 
 class CarImage(models.Model):
     car_id = models.ForeignKey(Car, on_delete=models.CASCADE)
-    image_url = models.TextField()
+    image_url = models.ImageField(upload_to='Car_images')
 
     def __str__(self):
         return self.image_url
+
 
 # class Driver(core_models.Model):
 #     user = core_models.OneToOneField(User, on_delete=core_models.CASCADE, null=True, blank=True)
