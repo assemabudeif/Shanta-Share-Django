@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
     # 'api',
     "posts.apps.PostsConfig",
+    "orders.apps.OrdersConfig"
 ]
 
 MIDDLEWARE = [
