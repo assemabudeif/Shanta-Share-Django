@@ -35,7 +35,7 @@ class PostCreateView(generics.CreateAPIView):
         max_weight = float(request.data['max_weight'])
         max_size = float(request.data['max_size'])
 
-        delivery_fees = calc_delivery_fees(
+        delivery_fees, delivery_commission = calc_delivery_fees(
             city1,
             city2,
             max_weight,
@@ -46,6 +46,7 @@ class PostCreateView(generics.CreateAPIView):
         if request.user.is_authenticated:
             request_data["created_by"] = request.user.id
             request_data["delivery_fee"] = delivery_fees
+            request_data["delivery_commission"] = delivery_commission
         else:
             return Response(serializer.data, status)
 
@@ -142,14 +143,14 @@ def calculate_delivery_fees_view(request):
     max_weight = float(request.GET.get('max_weight'))
     max_size = float(request.GET.get('max_size'))
 
-    delivery_fees = calc_delivery_fees(
+    delivery_fees, delivery_commission = calc_delivery_fees(
         city1,
         city2,
         max_weight,
         max_size,
     )
 
-    return JsonResponse({'delivery_fees': delivery_fees})
+    return JsonResponse({'delivery_fees': delivery_fees, 'delivery_commission': delivery_commission})
 
 
 def calc_delivery_fees(city1, city2, max_weight, max_size):
@@ -160,8 +161,13 @@ def calc_delivery_fees(city1, city2, max_weight, max_size):
             (distance * delivery_fees_settings.distance_factor) * (max_weight * delivery_fees_settings.weight_factor) +
             (distance * delivery_fees_settings.distance_factor) * (max_size * delivery_fees_settings.size_factor)
     )
+    delivery_commission = delivery_fees * delivery_fees_settings.commission_percentage / 100
+    if delivery_commission < 3:
+        delivery_commission = 3.0
 
-    return delivery_fees
+    delivery_fees += delivery_commission
+
+    return delivery_fees, delivery_commission
 
 
 def get_here_route_distance(city1, city2):

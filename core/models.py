@@ -133,7 +133,7 @@ class DeliveryFEESettings(Singleton):
     type_factor = models.FloatField()
     weight_factor = models.FloatField()
     size_factor = models.FloatField()
-    commission_percentage = models.FloatField()
+    commission_percentage = models.FloatField(default=1)
 
     def __str__(self):
         return f"Settings ({self.pk})"

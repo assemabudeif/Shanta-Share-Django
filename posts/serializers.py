@@ -25,7 +25,8 @@ class GETPostSerializer(serializers.ModelSerializer):
             'max_weight',
             'max_size',
             'created_by',
-            'delivery_fee'
+            'delivery_fee',
+            'delivery_commission',
         ]
 
 
@@ -46,4 +47,5 @@ class POSTPostSerializer(serializers.ModelSerializer):
             'max_size',
             'created_by',
             'delivery_fee',
+            'delivery_commission',
         ]
