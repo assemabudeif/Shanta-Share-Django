@@ -1,7 +1,9 @@
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from authentication.models import Client
+from core.models import City
 from posts.models import Post
 
 
@@ -12,6 +14,7 @@ class Order(models.Model):
         IN_PROGRESS = 'in_progress', _('In Progress')
         COMPLETED = 'completed', _('Completed')
         CANCELED = 'canceled', _('Canceled')
+        REJECTED = 'rejected', _('Rejected')
 
     class PaymentStatus(models.TextChoices):
         PAID = 'paid', _('Paid')
@@ -40,9 +43,16 @@ class Order(models.Model):
         choices=PaymentStatus,
         default=PaymentStatus.UNPAID,
     )
-    client_notes = models.CharField(max_length=255)
+    # Pickup details
     pickup_time = models.DateTimeField(null=True)
-    arrival_time = models.DateTimeField(null=True)
+    # pickup_city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='pickup_orders', null=False)
+    pickup_address_line = models.CharField(max_length=255, null=True)
 
-    # pickup_address_line = models.CharField(max_length=255, null=True)
-    # delivery_address_line = models.CharField(max_length=255, null=True)
+    # Arrival details
+    arrival_time = models.DateTimeField(null=True)
+    # arrival_city = models.ForeignKey(City, on_delete=models.CASCADE, related_name='delivery_orders', null=False)
+    delivery_address_line = models.CharField(max_length=255, null=True)
+
+    # Client notes
+    client_notes = models.CharField(max_length=255)
+    cargo_image = models.ImageField(upload_to='cargo_images', null=False, blank=True)
