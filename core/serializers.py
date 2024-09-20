@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from core.models import City, Government, PhoneNumber, NationalityID, DriverLicense, CarLicense, Car, CarImage
+from drf_extra_fields.fields import Base64ImageField
 
 
 class GovernmentSerializer(serializers.ModelSerializer):
@@ -24,12 +25,18 @@ class PhoneNumberSerializer(serializers.ModelSerializer):
 
 
 class NationalityIDSerializer(serializers.ModelSerializer):
+    front_image_url = Base64ImageField(required=True)
+    back_image_url = Base64ImageField(required=True)
+
     class Meta:
         model = NationalityID
         fields = '__all__'
 
 
 class CarLicenseSerializer(serializers.ModelSerializer):
+    front_image_url = Base64ImageField(required=True)
+    back_image_url = Base64ImageField(required=True)
+
     class Meta:
         model = CarLicense
         fields = '__all__'
@@ -42,12 +49,17 @@ class CarSerializer(serializers.ModelSerializer):
 
 
 class CarImageSerializer(serializers.ModelSerializer):
+    image_url = Base64ImageField(required=True)
+
     class Meta:
         model = CarImage
         fields = '__all__'
 
 
 class DriverLicenseSerializer(serializers.ModelSerializer):
+    front_image_url = Base64ImageField(required=True)
+    back_image_url = Base64ImageField(required=True)
+
     class Meta:
         model = DriverLicense
         fields = '__all__'

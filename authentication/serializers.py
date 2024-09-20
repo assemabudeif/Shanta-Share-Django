@@ -1,10 +1,10 @@
+from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 
 from authentication.models import Client, Driver, BaseUser
 from core.models import City, PhoneNumber, Car, DriverLicense, NationalityID, UserType, Government
 from core.serializers import CitySerializer, PhoneNumberSerializer, CarSerializer, DriverLicenseSerializer, \
     NationalityIDSerializer
-
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -25,6 +25,7 @@ class DriverSerializer(serializers.ModelSerializer):
     driver_license_ids = DriverLicenseSerializer(read_only=True, many=True)
     nationality_id = NationalityIDSerializer(read_only=True)
     user = BaseUserSerializer(read_only=True)
+    profile_picture = Base64ImageField(required=True)
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -34,18 +35,53 @@ class ClientSerializer(serializers.ModelSerializer):
 
     city_ids = CitySerializer(many=True, read_only=True)  # Accepting nested City objects
     phone_numbers = PhoneNumberSerializer(read_only=True, many=True)
+    profile_picture = Base64ImageField(required=True)
+
+
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BaseUser
+        fields = [
+            'username',
+            'password',
+            'user_type',
+            'admin',
+            'is_superuser',
+        ]
+
+    def create(self, validated_data):
+        user = BaseUser.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            user_type=UserType.ADMIN,
+            admin=True,
+            is_superuser=True
+        )
+        return user
 
 
 class ClientRegisterSerializer(serializers.ModelSerializer):
     # city_ids = serializers.ListField(child=CitySerializer(), write_only=True)
-    city_ids = CitySerializer(many=True, write_only=True)  # Accepting nested City objects
+    # city_ids = CitySerializer(many=True, write_only=True)  # Accepting nested City objects
+    city_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
 
     phone_numbers = serializers.ListField(child=PhoneNumberSerializer(), write_only=True)
+    profile_picture = Base64ImageField(required=True)
 
     class Meta:
         model = Client
-        fields = ['email', 'first_name', 'last_name', 'password', 'name', 'city_ids', 'phone_numbers',
-                  'address_line', 'birth_date']
+        fields = [
+            'email',
+            'first_name',
+            'last_name',
+            'password',
+            'name',
+            'city_ids',
+            'phone_numbers',
+            'address_line',
+            'birth_date',
+            'profile_picture',
+        ]
 
     def create(self, validated_data):
         # Extract related fields
@@ -61,22 +97,25 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             address_line=validated_data['address_line'],
             birth_date=validated_data['birth_date'],
+            profile_picture=validated_data['profile_picture'],
         )
 
         # Add or create cities
-        for city_data in city_ids:
-            government, created = Government.objects.get_or_create(
-                name=city_data['government']['name'],
-            )
-            city, created = City.objects.get_or_create(
-                name=city_data['name'],
-                government=government,
-            )
-            user.city_ids.add(city)
+        cities = City.objects.filter(id__in=city_ids)
+        user.city_ids.set(cities)
+        # for city_data in city_ids:
+        #     government, created = Government.objects.get_or_create(
+        #         name=city_data['government']['name'],
+        #     )
+        #     city, created = City.objects.get_or_create(
+        #         name=city_data['name'],
+        #         government=government,
+        #     )
+        #     user.city_ids.add(city)
 
         # Add phone numbers (create new ones if they don't exist)
         for number in phone_numbers:
-            phone, created = PhoneNumber.objects.get_or_create(phone_number=number)
+            phone, created = PhoneNumber.objects.get_or_create(phone_number=number['phone_number'])
             user.phone_numbers.add(phone)
 
         user.save()
@@ -84,16 +123,31 @@ class ClientRegisterSerializer(serializers.ModelSerializer):
 
 
 class DriverRegisterSerializer(serializers.ModelSerializer):
-    city_ids = CitySerializer(many=True, write_only=True)  # Accepting nested City objects
+    city_ids = serializers.ListField(child=serializers.IntegerField(), write_only=True)
     phone_numbers = serializers.ListField(child=PhoneNumberSerializer(), write_only=True)
     car_ids = serializers.ListField(child=CarSerializer(), write_only=True)
     driver_license_ids = serializers.ListField(child=DriverLicenseSerializer(), write_only=True)
     nationality_id = NationalityIDSerializer(write_only=True)
+    profile_picture = Base64ImageField(required=True)
 
     class Meta:
         model = Driver
-        fields = ['email', 'name', 'first_name', 'last_name', 'password', 'name', 'city_ids', 'phone_numbers', 'address_line',
-                  'birth_date', 'nationality_id', 'car_ids', 'driver_license_ids']
+        fields = [
+            'email',
+            'name',
+            'first_name',
+            'last_name',
+            'password',
+            'name',
+            'city_ids',
+            'phone_numbers',
+            'address_line',
+            'birth_date',
+            'nationality_id',
+            'car_ids',
+            'driver_license_ids',
+            'profile_picture',
+        ]
 
     def create(self, validated_data):
         # Extract related fields
@@ -111,18 +165,12 @@ class DriverRegisterSerializer(serializers.ModelSerializer):
             name=validated_data['name'],
             address_line=validated_data['address_line'],
             birth_date=validated_data['birth_date'],
+            profile_picture=validated_data['profile_picture'],
         )
 
-        # Add or create cities
-        for city_data in city_ids:
-            government, created = Government.objects.get_or_create(
-                name=city_data['government']['name'],
-            )
-            city, created = City.objects.get_or_create(
-                name=city_data['name'],
-                government=government,
-            )
-            user.city_ids.add(city)
+        # Add cities
+        cities = City.objects.filter(id__in=city_ids)
+        user.city_ids.set(cities)
 
         # Add phone numbers (create new ones if they don't exist)
         for number in phone_numbers:
@@ -158,10 +206,7 @@ class DriverRegisterSerializer(serializers.ModelSerializer):
                 expiration_date=nationality_id['expiration_date'],
                 front_image_url=nationality_id['front_image_url'],
                 back_image_url=nationality_id['back_image_url'],
-
             )
 
         user.save()
         return user
-
-

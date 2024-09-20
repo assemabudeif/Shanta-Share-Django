@@ -27,6 +27,7 @@ class Post(models.Model):
     max_weight = models.FloatField()
     max_size = models.FloatField()
     delivery_fee = models.FloatField(null=True)
+    delivery_commission = models.FloatField(null=True)
     created_by = models.ForeignKey(
         Driver,
         models.CASCADE,

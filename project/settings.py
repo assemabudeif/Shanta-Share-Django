@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_extra_fields',
     'rest_framework.authtoken',
     'django_filters',
     'core',
@@ -46,6 +48,7 @@ INSTALLED_APPS = [
     'corsheaders',
     # 'api',
     "posts.apps.PostsConfig",
+    "orders.apps.OrdersConfig"
 ]
 
 MIDDLEWARE = [
@@ -116,8 +119,23 @@ DATABASES = {
     }
 }
 
-CORS_ORIGIN_WHITELIST=['http://localhost:3000']
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#
+#         'NAME': 'shanta_share_db',
+#
+#         'USER': 'shanta_share',
+#
+#         'PASSWORD': '123456',
+#
+#         'HOST': 'localhost',
+#
+#         'PORT': '5432',
+#     }
+# }
 
+CORS_ORIGIN_WHITELIST = ['http://localhost:3000']
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -137,7 +155,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -148,7 +165,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -162,11 +178,10 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'authentication.BaseUser'
 
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=60),
-    'USER_ID_FIELD': 'email',
+    'USER_ID_FIELD': 'username',
 }
 
 REST_FRAMEWORK = {
@@ -176,7 +191,16 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+    ),
 }
+
+# Media Folder Settings
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 #
