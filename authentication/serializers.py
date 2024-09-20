@@ -38,6 +38,28 @@ class ClientSerializer(serializers.ModelSerializer):
     profile_picture = Base64ImageField(required=True)
 
 
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BaseUser
+        fields = [
+            'username',
+            'password',
+            'user_type',
+            'admin',
+            'is_superuser',
+        ]
+
+    def create(self, validated_data):
+        user = BaseUser.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            user_type=UserType.ADMIN,
+            admin=True,
+            is_superuser=True
+        )
+        return user
+
+
 class ClientRegisterSerializer(serializers.ModelSerializer):
     # city_ids = serializers.ListField(child=CitySerializer(), write_only=True)
     # city_ids = CitySerializer(many=True, write_only=True)  # Accepting nested City objects
