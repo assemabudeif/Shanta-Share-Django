@@ -13,12 +13,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
         # Filter reviews by the driver's ID
         user = self.request.user
         driver = getattr(user, 'driver', None)
+        driver_id = self.request.query_params.get('driver_id', None)
 
-        if driver:
+        if driver_id :
+            return Review.objects.filter(driver_id=driver_id)
+        
+        elif driver:
             # Return only reviews related to the logged-in driver
-            return Review.objects.filter(driver=driver).all()
-        else:
+            return Review.objects.filter(driver=driver)
+        
             # If the user is not a driver, return an empty queryset
+        else:
             return Review.objects.none()
 
     def perform_create(self, serializer):
