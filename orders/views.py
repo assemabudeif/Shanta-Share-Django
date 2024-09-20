@@ -304,7 +304,8 @@ class AdminOrdersView(APIView):
     authentication_classes = [JWTAuthentication]
 
     def get(self, request):
-        if request.user.user_type == UserType.ADMIN:
+        print(f"User: {request.user}")
+        if request.user.admin:
             orders = Order.objects.all()
             serializer = GETOrdersSerializer(orders, many=True)
             return Response({

@@ -181,7 +181,7 @@ AUTH_USER_MODEL = 'authentication.BaseUser'
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=60),
-    'USER_ID_FIELD': 'email',
+    'USER_ID_FIELD': 'username',
 }
 
 REST_FRAMEWORK = {
