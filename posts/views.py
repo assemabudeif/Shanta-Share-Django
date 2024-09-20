@@ -9,9 +9,10 @@ from rest_framework import generics, status, filters
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from authentication.models import Driver
-from core.models import City, DeliveryFEESettings
+from authentication.models import Driver, BaseUser
+from core.models import City, DeliveryFEESettings, UserType
 from core.pagination import StanderPagination
 from reviews.models import Review
 from .models import Post
@@ -68,10 +69,69 @@ class PostCreateView(generics.CreateAPIView):
     #     serializer.save(created_by=self.request.user.driver)
 
 
-class PostDeleteView(generics.DestroyAPIView):
-    queryset = Post.objects.all()
-    serializer_class = GETPostSerializer
+class PostDetailView(APIView):
+    from rest_framework.response import Response
+    from rest_framework import status
 
+    def patch(self, request, pk):
+        if request.user.is_authenticated:
+            if request.user.user_type == UserType.ADMIN:
+                post = Post.objects.filter(id=pk).first()
+                if post:
+                    serializer = POSTPostSerializer(post, data=request.data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        return Response({
+                            "message": "Post Updated Successfully",
+                            "status": "success",
+                        }, status=status.HTTP_200_OK)
+                    else:
+                        return Response({
+                            "message": "Validation failed",
+                            "status": "fail",
+                            "errors": serializer.errors
+                        }, status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    return Response({
+                        "message": "Post not found",
+                        "status": "fail",
+                    }, status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response({
+                    "message": "Only Admins are allowed to update posts",
+                    "status": "fail",
+                }, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({
+                "message": "Authentication required",
+                "status": "fail"
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+    def delete(self, request, pk):
+        if request.user.is_authenticated:
+            if request.user.user_type == UserType.ADMIN:
+                post = Post.objects.filter(id=pk).first()
+                if post:
+                    post.delete()
+                    return Response({
+                        "message": "Post Deleted Successfully",
+                        "status": "success",
+                    }, status=status.HTTP_200_OK)
+                else:
+                    return Response({
+                        "message": "Post not found",
+                        "status": "fail",
+                    }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "message": "Admin only allowed to delete posts",
+                    "status": "fail",
+                }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "message": "Authentication required",
+                "status": "fail"
+            }, status=status.HTTP_401_UNAUTHORIZED)
 
 class PostFilter(django_filters.FilterSet):
     # pickup_time = django_filters.DateTimeFilter()
