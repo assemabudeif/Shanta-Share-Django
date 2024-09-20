@@ -21,10 +21,10 @@ from users.views import DriverProfile, listDrivers, listClients, ClientProfile
 
 urlpatterns = [
 
-path('driver-profile/<int:id>', DriverProfile.as_view(), name='driver-profile'),
-path('driver-profile/list', listDrivers, name='list-drivers'),
+    path('driver-profile/<int:id>', DriverProfile.as_view(), name='driver-profile'),
+    path('driver-profile/list', listDrivers, name='list-drivers'),
 
 
-path('client-profile/<int:id>', ClientProfile.as_view(), name='client-profile'),
-path('client-profile/list', listClients, name='list-clients'),
+    path('client-profile/<int:id>', ClientProfile.as_view(), name='client-profile'),
+    path('client-profile/list', listClients, name='list-clients'),
 ]
