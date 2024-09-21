@@ -15,8 +15,8 @@ from posts.models import Post
 
 # For Client
 class ClientOrderView(APIView):
-    permission_classes([IsAuthenticated])
-    authentication_classes([JWTAuthentication])
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         if request.user.user_type == UserType.CLIENT:
@@ -301,11 +301,11 @@ def get_post_orders(request):
 # For Admin
 class AdminOrdersView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes = [JWTAuthentication]
+    authentication_classes= [JWTAuthentication]
 
     def get(self, request):
-        print(f"User: {request.user}")
-        if request.user.admin:
+        print(f"User: {request.user.user_type}")
+        if request.user.user_type == UserType.ADMIN:
             orders = Order.objects.all()
             serializer = GETOrdersSerializer(orders, many=True)
             return Response({
@@ -321,8 +321,8 @@ class AdminOrdersView(APIView):
 
     def patch(self, request):
         if request.user.user_type == UserType.ADMIN:
+            order_id = request.query_params.get('order_id')
             try:
-                order_id = request.data.get('order_id')
                 order = Order.objects.get(id=order_id)
                 serializer = POSTOrdersSerializer(order, data=request.data)
                 if serializer.is_valid():
@@ -358,9 +358,12 @@ class AdminOrdersView(APIView):
 
     def delete(self, request):
         if request.user.user_type == UserType.ADMIN:
+            order_id = request.query_params.get('order_id')
+            print(order_id)
             try:
-                order_id = request.data.get('order_id')
-                order = Order.objects.get(id=order_id)
+                # order_id = request.data.get('order_id')
+                order = Order.objects.all().get(id=order_id)
+                print(order)
                 order.delete()
                 return Response({
                     "status": "success",
@@ -382,3 +385,4 @@ class AdminOrdersView(APIView):
                 "status": "error",
                 "message": "Only admins can delete orders"
             }, status=status.HTTP_403_FORBIDDEN)
+

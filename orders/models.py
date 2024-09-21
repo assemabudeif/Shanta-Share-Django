@@ -55,4 +55,4 @@ class Order(models.Model):
 
     # Client notes
     client_notes = models.CharField(max_length=255)
-    cargo_image = models.ImageField(upload_to='cargo_images', null=False, blank=True)
+    cargo_image = models.ImageField(upload_to='cargo_images', null=True, blank=True)

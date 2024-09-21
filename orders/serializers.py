@@ -37,7 +37,7 @@ from posts.serializers import GETPostSerializer
     #     return Order.objects.create(post=post, client=client, **validated_data)
 
 class POSTOrdersSerializer(serializers.ModelSerializer):
-    cargo_image = Base64ImageField()
+    cargo_image = Base64ImageField(required=False)
     client_notes = serializers.CharField(max_length=255, required=False)
     class Meta:
         model = Order
