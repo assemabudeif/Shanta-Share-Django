@@ -27,4 +27,5 @@ urlpatterns = [
     path('posts/', include('posts.urls')),
 
     path('orders/', include('orders.urls')),
+    path('payment/', include('payment.urls')),
 ]
