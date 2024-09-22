@@ -11,6 +11,7 @@ from posts.models import Post
 class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = 'pending', _('Pending')
+        ACCEPTED = 'accepted', _('Accepted')
         IN_PROGRESS = 'in_progress', _('In Progress')
         COMPLETED = 'completed', _('Completed')
         CANCELED = 'canceled', _('Canceled')
@@ -56,3 +57,6 @@ class Order(models.Model):
     # Client notes
     client_notes = models.CharField(max_length=255)
     cargo_image = models.ImageField(upload_to='cargo_images', null=True, blank=True)
+
+    # Payment
+    paymob_order_id = models.CharField(max_length=255, null=True, default=None)

@@ -1,3 +1,5 @@
+from django.core.mail import EmailMessage
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
@@ -8,7 +10,9 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from core.models import UserType
 from orders.models import Order
 from orders.serializers import POSTOrdersSerializer, GETOrdersSerializer
+from payment.views import get_auth_token, create_order, generate_payment_key, redirect_to_paymob
 from posts.models import Post
+from project import settings
 
 
 # Create your views here.
@@ -219,7 +223,7 @@ def get_driver_single_order(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def update_order_status(request):
-    order_status_list = ['pending', 'in_progress', 'completed', 'canceled', 'rejected']
+    order_status_list = ['pending','accepted', 'in_progress', 'completed', 'canceled', 'rejected']
 
     if request.user.user_type == UserType.DRIVER:
         order_id = request.query_params.get('order_id')
@@ -229,8 +233,19 @@ def update_order_status(request):
             if order.post.created_by.id == request.user.id:
                 if order_status in order_status_list:
                     order.status = order_status
-                    # if order_status == 'completed':
-                    #     order.payment_status = 'paid'
+                    if order_status == 'accepted':
+                        amount_cents = round(order.post.delivery_fee) * 100
+                        print(amount_cents)
+                        auth_token = get_auth_token()
+                        user = request.user
+                        order_id = create_order(amount_cents=amount_cents, currency="EGP", auth_token=auth_token)
+                        token = generate_payment_key(amount_cents=amount_cents, order_id=order_id,
+                                                     auth_token=auth_token, user=user)
+                        order.paymob_order_id = order_id
+                        email = EmailMessage(subject="Order Payment", body="Please click on the following link to pay for your order: " + redirect_to_paymob(token),
+                                             from_email=settings.EMAIL_HOST_USER, to=[order.client.email])
+                        email.send()
+
                     order.save()
                     return Response({
                         "status": "success",
@@ -263,8 +278,6 @@ def update_order_status(request):
             "status": "error",
             "message": "Only drivers can change their orders status"
         }, status=status.HTTP_403_FORBIDDEN)
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
