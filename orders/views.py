@@ -463,9 +463,10 @@ class GetAdminOrdersView(generics.ListAPIView):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
-def complete_order(request, order_id):
+def complete_order(request):
     if request.user.user_type == UserType.CLIENT:
         try:
+            order_id = request.query_params.get('order_id')
             order = Order.objects.get(id=order_id, client=request.user)
             order.order_completed = True
             order.save()

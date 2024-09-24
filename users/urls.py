@@ -15,16 +15,16 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 
-from users.views import DriverProfile, listDrivers, listClients, ClientProfile
+from users.views import DriverProfile, ListDriversView, ClientProfile, ListClientsView
 
 urlpatterns = [
 
     path('driver-profile/<int:id>', DriverProfile.as_view(), name='driver-profile'),
-    path('driver-profile/list', listDrivers, name='list-drivers'),
+    path('driver-profile/list', ListDriversView.as_view(), name='list-drivers'),
 
 
     path('client-profile/<int:id>', ClientProfile.as_view(), name='client-profile'),
-    path('client-profile/list', listClients, name='list-clients'),
+    path('client-profile/list', ListClientsView.as_view(), name='list-clients'),
 ]

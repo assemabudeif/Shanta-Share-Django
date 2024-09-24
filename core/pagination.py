@@ -16,5 +16,6 @@ class StanderPagination(PageNumberPagination):
             'count': self.page.paginator.count,
             'page_size': self.page.paginator.per_page,
             'page_count': self.page.paginator.num_pages,
+            'current_page': page.number,
             'results': data
         })

@@ -3,13 +3,14 @@ from django.urls import path, include
 
 from orders.views import ClientOrderView, get_driver_orders, get_driver_single_order, \
     update_order_status, get_post_orders, AdminOrdersView, GetClientsOrdersView, GetDriverOrdersView, \
-    GetAdminOrdersView, withdraw_driver_earnings
+    GetAdminOrdersView, withdraw_driver_earnings, complete_order
 
 urlpatterns = [
     # Client Urls
     path('client/', ClientOrderView.as_view(), name='client-orders'),
     # path('client-orders/', get_clients_orders, name='client-orders'),
     path('client-orders/', GetClientsOrdersView.as_view(), name='client-orders'),
+    path('client/complete-order', complete_order, name='client-complete'),
 
     # Driver Urls
     # path('driver-orders/', get_driver_orders, name='driver-orders'),
