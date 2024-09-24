@@ -81,6 +81,7 @@ class Driver(BaseUser):
     profile_picture = models.ImageField(
         upload_to="profile_pictures", null=False, blank=True
     )
+    earnings = models.FloatField(default=0.0)
 
     @property
     def age(self):

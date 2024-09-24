@@ -60,3 +60,9 @@ class Order(models.Model):
 
     # Payment
     paymob_order_id = models.CharField(max_length=255, null=True, default=None)
+
+    # Order completed
+    order_completed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Order {self.id}"

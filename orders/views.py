@@ -1,6 +1,6 @@
 from django.core.mail import EmailMessage
 
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from core.models import UserType
+from core.pagination import StanderPagination
 from orders.models import Order
 from orders.serializers import POSTOrdersSerializer, GETOrdersSerializer
 from payment.views import get_auth_token, create_order, generate_payment_key, redirect_to_paymob
@@ -143,19 +144,26 @@ class ClientOrderView(APIView):
             }, status=status.HTTP_403_FORBIDDEN)
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-@authentication_classes([JWTAuthentication])
-def get_clients_orders(request):
-    if request.user.user_type == UserType.CLIENT:
-        orders = Order.objects.filter(client=request.user)
-        serializer = GETOrdersSerializer(orders, many=True)
-        return Response({
-            "status": "success",
-            "message": "Orders found successfully",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
-    else:
+class GetClientsOrdersView(generics.ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = GETOrdersSerializer
+    pagination_class = StanderPagination
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        if request.user.user_type == UserType.CLIENT:
+            return self.list(request, *args, **kwargs)
+        else:
+            return Response({
+                "status": "error",
+                "message": "Only clients can see their orders"
+            }, status=status.HTTP_403_FORBIDDEN)
+
+    def get_queryset(self):
+        if self.request.user.user_type == UserType.CLIENT:
+            return self.queryset.filter(client=self.request.user)
+
         return Response({
             "status": "error",
             "message": "Only clients can see their orders"
@@ -184,6 +192,37 @@ def get_driver_orders(request):
         return Response({
             "status": "error",
             "message": "Only drivers can see their orders"
+        }, status=status.HTTP_403_FORBIDDEN)
+
+
+class GetDriverOrdersView(generics.ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = GETOrdersSerializer
+    pagination_class = StanderPagination
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        if request.user.user_type == UserType.DRIVER:
+            return self.list(request, *args, **kwargs)
+        else:
+            return Response({
+                "status": "error",
+                "message": "Only drivers can see their orders"
+            }, status=status.HTTP_403_FORBIDDEN)
+
+    def get_queryset(self):
+        if self.request.user.user_type == UserType.DRIVER:
+            orders = Order.objects.all()
+            print(self.request.user.id)
+            for order in orders:
+                if order.post.created_by.id != self.request.user.id:
+                    orders = orders.exclude(id=order.id)
+            return orders
+
+        return Response({
+            "status": "error",
+            "message": "Only Drivers can see their orders"
         }, status=status.HTTP_403_FORBIDDEN)
 
 
@@ -223,7 +262,7 @@ def get_driver_single_order(request):
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def update_order_status(request):
-    order_status_list = ['pending','accepted', 'in_progress', 'completed', 'canceled', 'rejected']
+    order_status_list = ['pending', 'accepted', 'in_progress', 'completed', 'canceled', 'rejected']
 
     if request.user.user_type == UserType.DRIVER:
         order_id = request.query_params.get('order_id')
@@ -242,7 +281,9 @@ def update_order_status(request):
                         token = generate_payment_key(amount_cents=amount_cents, order_id=order_id,
                                                      auth_token=auth_token, user=user)
                         order.paymob_order_id = order_id
-                        email = EmailMessage(subject="Order Payment", body="Please click on the following link to pay for your order: " + redirect_to_paymob(token),
+                        email = EmailMessage(subject="Order Payment",
+                                             body="Please click on the following link to pay for your order: " + redirect_to_paymob(
+                                                 token),
                                              from_email=settings.EMAIL_HOST_USER, to=[order.client.email])
                         email.send()
 
@@ -278,6 +319,8 @@ def update_order_status(request):
             "status": "error",
             "message": "Only drivers can change their orders status"
         }, status=status.HTTP_403_FORBIDDEN)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
@@ -314,7 +357,7 @@ def get_post_orders(request):
 # For Admin
 class AdminOrdersView(APIView):
     permission_classes = [IsAuthenticated]
-    authentication_classes= [JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
 
     def get(self, request):
         print(f"User: {request.user.user_type}")
@@ -399,3 +442,90 @@ class AdminOrdersView(APIView):
                 "message": "Only admins can delete orders"
             }, status=status.HTTP_403_FORBIDDEN)
 
+class GetAdminOrdersView(generics.ListAPIView):
+    queryset = Order.objects.all()
+    serializer_class = GETOrdersSerializer
+    pagination_class = StanderPagination
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+
+    def get(self, request, *args, **kwargs):
+        if request.user.user_type == UserType.ADMIN:
+            return self.list(request, *args, **kwargs)
+        else:
+            return Response({
+                "status": "error",
+                "message": "Only admins can see their orders"
+            }, status=status.HTTP_403_FORBIDDEN)
+
+
+# Complete Order
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def complete_order(request, order_id):
+    if request.user.user_type == UserType.CLIENT:
+        try:
+            order = Order.objects.get(id=order_id, client=request.user)
+            order.order_completed = True
+            order.save()
+            driver = order.post.created_by
+            if driver:
+                if order.post.delivery_commission:
+                    driver.earnings += order.post.delivery_fee - order.post.delivery_commission
+                else:
+                    driver.earnings += order.post.delivery_fee
+                driver.save()
+            return Response({
+                "status": "success",
+                "message": "Order completed successfully"
+            }, status=status.HTTP_200_OK)
+        except Order.DoesNotExist:
+            return Response({
+                "status": "error",
+                "message": "Order not found"
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": str(e),
+            }, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({
+            "status": "error",
+            "message": "Only clients can complete orders"
+        }, status=status.HTTP_403_FORBIDDEN)
+
+
+# Withdraw driver earnings
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+def withdraw_driver_earnings(request):
+    if request.user.user_type == UserType.DRIVER:
+        try:
+            driver = request.user
+            driver.earnings = 0
+            driver.save()
+            mail = EmailMessage(
+                subject="Earnings withdrawn",
+                body=f"Earnings withdrawn successfully. New balance is {driver.earnings}",
+                from_email=settings.EMAIL_HOST_USER,
+                to=[driver.email]
+            )
+            mail.send()
+            return Response({
+                "status": "success",
+                "message": "Earnings withdrawn successfully"
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": str(e),
+            }, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({
+            "status": "error",
+            "message": "Only drivers can withdraw earnings"
+        }, status=status.HTTP_403_FORBIDDEN)
