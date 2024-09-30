@@ -156,6 +156,7 @@ def generate_iframe(request):
 @api_view(["POST"])
 def pay_now(request):
     try:
+        print(request.data.get("order_id"))
         order = Order.objects.get(id=request.data.get("order_id"))
         amount_cents = round(order.post.delivery_fee) * 100
         print(amount_cents)
@@ -171,6 +172,7 @@ def pay_now(request):
             user=user,
         )
         order.paymob_order_id = order_id
+        order.save()
         return Response({"iframe": redirect_to_paymob(token)}, status=200)
     except Exception as e:
         print(str(e))
