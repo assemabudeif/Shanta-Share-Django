@@ -3,7 +3,11 @@ from django.http import JsonResponse
 from django.shortcuts import render
 import requests
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import (
+    api_view,
+    authentication_classes,
+    permission_classes,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.utils import json
@@ -22,14 +26,12 @@ def get_auth_token():
     headers = {
         "Content-Type": "application/json",
     }
-    data = {
-        "api_key": PAYMOB_API_KEY
-    }
+    data = {"api_key": PAYMOB_API_KEY}
 
     response = requests.post(url, json=data)
 
     if response.status_code == 201:
-        return response.json().get('token')
+        return response.json().get("token")
     else:
         raise Exception(f"Error authenticating with Paymob: {response.content}")
 
@@ -44,18 +46,20 @@ def create_order(amount_cents=1000, currency="EGP", auth_token=get_auth_token())
         "delivery_needed": "false",
         "amount_cents": amount_cents,
         "currency": currency,
-        "items": []
+        "items": [],
     }
 
     response = requests.post(url, json=data, headers=headers)
 
     if response.status_code == 201:
-        return response.json().get('id')
+        return response.json().get("id")
     else:
         raise Exception(f"Error creating order: {response.content}")
 
 
-def generate_payment_key(amount_cents, order_id, user, integration_id=4839275, auth_token=get_auth_token()):
+def generate_payment_key(
+    amount_cents, order_id, user, integration_id=4839275, auth_token=get_auth_token()
+):
     url = "https://accept.paymob.com/api/acceptance/payment_keys"
     headers = {
         "Authorization": f"Bearer {auth_token}",
@@ -78,7 +82,7 @@ def generate_payment_key(amount_cents, order_id, user, integration_id=4839275, a
             "postal_code": "NA",
             "city": "NA",
             "country": "EG",
-            "state": "NA"
+            "state": "NA",
         },
         "currency": "EGP",
         "integration_id": integration_id,
@@ -88,24 +92,28 @@ def generate_payment_key(amount_cents, order_id, user, integration_id=4839275, a
     response = requests.post(url, json=data, headers=headers)
 
     if response.status_code == 201:
-        return response.json().get('token')
+        return response.json().get("token")
     else:
         raise Exception(f"Error generating payment key: {response.content}")
 
 
 def redirect_to_paymob(token):
-    return f"https://accept.paymob.com/api/acceptance/iframes/870346?payment_token={token}"
+    return (
+        f"https://accept.paymob.com/api/acceptance/iframes/870346?payment_token={token}"
+    )
 
 
-@api_view(['POST', 'GET'])
+@api_view(["POST", "GET"])
 def payment_callback(request):
     try:
-        paymob_order_id = request.query_params.get('order')
+        paymob_order_id = request.query_params.get("order")
         order = Order.objects.get(paymob_order_id=paymob_order_id)
         order.payment_status = Order.PaymentStatus.PAID
         order.status = Order.Status.IN_PROGRESS
         order.save()
-        email = EmailMessage(subject="User Payed for Order", body= f"""
+        email = EmailMessage(
+            subject="User Payed for Order",
+            body=f"""
             Your order has been successfully paid.
             Name: {order.client.name}
             Email: {order.client.email}
@@ -116,24 +124,54 @@ def payment_callback(request):
             Please contact client to deliver.
             
             Thank you.
-        """, from_email=settings.EMAIL_HOST_USER, to=[order.post.created_by.user.email])
+        """,
+            from_email=settings.EMAIL_HOST_USER,
+            to=[order.post.created_by.user.email],
+        )
         email.send()
     except Exception as e:
         print(str(e))
 
-    return Response({
-        "status": "success",
-        "message": "Payment received successfully"
-    })
+    return Response({"status": "success", "message": "Payment received successfully"})
 
 
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
-@api_view(['POST'])
+@api_view(["POST"])
 def generate_iframe(request):
-    amount_cents = request.data.get('amount_cents')
+    amount_cents = request.data.get("amount_cents")
     auth_token = get_auth_token()
     user = request.user
-    order_id = create_order(amount_cents=amount_cents, currency="EGP", auth_token=auth_token)
-    token = generate_payment_key(amount_cents=amount_cents, order_id=order_id, auth_token=auth_token, user=user)
-    return Response({'iframe': redirect_to_paymob(token)})
+    order_id = create_order(
+        amount_cents=amount_cents, currency="EGP", auth_token=auth_token
+    )
+    token = generate_payment_key(
+        amount_cents=amount_cents, order_id=order_id, auth_token=auth_token, user=user
+    )
+    return Response({"iframe": redirect_to_paymob(token)})
+
+
+@permission_classes([IsAuthenticated])
+@authentication_classes([JWTAuthentication])
+@api_view(["POST"])
+def pay_now(request):
+    try:
+        order = Order.objects.get(id=request.data.get("order_id"))
+        amount_cents = round(request.data.get("price")) * 100
+        print(amount_cents)
+        auth_token = get_auth_token()
+        user = request.user
+        order_id = create_order(
+            amount_cents=amount_cents, currency="EGP", auth_token=auth_token
+        )
+        token = generate_payment_key(
+            amount_cents=amount_cents,
+            order_id=order_id,
+            auth_token=auth_token,
+            user=user,
+        )
+        order.paymob_order_id = order_id
+        return Response({"iframe": redirect_to_paymob(token)}, status=200)
+    except Exception as e:
+        print(str(e))
+        return Response({"message": str(e)}, status=400)
