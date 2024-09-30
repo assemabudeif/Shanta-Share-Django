@@ -157,7 +157,7 @@ def generate_iframe(request):
 def pay_now(request):
     try:
         order = Order.objects.get(id=request.data.get("order_id"))
-        amount_cents = round(request.data.get("price")) * 100
+        amount_cents = round(order.post.delivery_fee) * 100
         print(amount_cents)
         auth_token = get_auth_token()
         user = request.user
